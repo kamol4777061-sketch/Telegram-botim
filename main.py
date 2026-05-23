@@ -24,7 +24,7 @@ def openrouter_so_rov(messages):
             "HTTP-Referer": "https://t.me",
         },
         json={
-            "model": "google/gemini-2.0-flash-exp:free",
+            "model": "google/gemini-flash-1.5:free",
             "messages": messages
         }
     )
