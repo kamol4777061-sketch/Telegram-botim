@@ -28,7 +28,7 @@ def handle_message(message):
     try:
         # Gemini modelidan javob olish
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+           model="gemini-1.5-flash",
             contents=message.text,
         )
         bot.reply_to(message, response.text)
