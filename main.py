@@ -16,7 +16,11 @@ app = Flask(__name__)
 def home():
     return "Bot ishlamoqda!"
 
+# System prompt qo'shilgan va uzunlikni nazorat qiluvchi kod
 def openrouter_so_rov(messages):
+    # AIga o'zbek tilida gapirishni buyuramiz
+    messages.insert(0, {"role": "system", "content": "Sen foydali AI yordamchisan. Har doim o'zbek tilida javob ber."})
+    
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={
@@ -25,14 +29,28 @@ def openrouter_so_rov(messages):
             "HTTP-Referer": "https://t.me",
         },
         json={
-            # Xatolik shu yerda edi, model nomi yangilandi:
-        
-            # Bu ID hozirda eng ko'p ishlatiladigan va bepul modellardan biri:
-          "model": "meta-llama/llama-3-8b-instruct",
+            "model": "google/gemini-2.0-flash-exp:free", # Yoki ishlaydigan ID
             "messages": messages
-    
         }
     )
+    data = response.json()
+    return data["choices"][0]["message"]["content"]
+
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    try:
+        bot.send_chat_action(message.chat.id, 'typing')
+        javob = openrouter_so_rov([{"role": "user", "content": message.text}])
+        
+        # Javobni qismlarga bo'lib yuborish (4000 belgi chegarasidan oshsa)
+        if len(javob) > 4000:
+            for i in range(0, len(javob), 4000):
+                bot.reply_to(message, javob[i:i+4000])
+        else:
+            bot.reply_to(message, javob)
+            
+    except Exception as e:
+        bot.reply_to(message, f"❌ Xato: {str(e)}")
     data = response.json()
     
     if "error" in data:
