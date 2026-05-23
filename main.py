@@ -26,8 +26,11 @@ def openrouter_so_rov(messages):
         },
         json={
             # Xatolik shu yerda edi, model nomi yangilandi:
-            "model": "google/gemini-flash-1.5-free",
+        
+            # Bu ID hozirda eng ko'p ishlatiladigan va bepul modellardan biri:
+            "model": "google/gemini-2.0-flash-lite-preview",
             "messages": messages
+    
         }
     )
     data = response.json()
