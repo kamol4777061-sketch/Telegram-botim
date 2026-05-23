@@ -16,9 +16,6 @@ def home():
     return "Bot ishlamoqda!"
 
 def openrouter_so_rov(messages):
-    # System prompt qo'shish
-    messages.insert(0, {"role": "system", "content": "Sen foydali AI yordamchisan. Har doim o'zbek tilida javob ber."})
-    
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={
@@ -27,20 +24,20 @@ def openrouter_so_rov(messages):
             "HTTP-Referer": "https://t.me",
         },
         json={
-            # Hozirda ishlayotgan model ID
-            "model": "google/gemini-2.0-flash-exp:free", 
+            # Eng sodda va universal model
+            "model": "openai/gpt-3.5-turbo", 
             "messages": messages
         }
     )
     
-    data = response.json()
+    # Nima javob kelayotganini terminalda ko'rish uchun:
+    print(f"DEBUG: Status kod: {response.status_code}")
+    print(f"DEBUG: Javob matni: {response.text}")
     
-    # Xatolarni tekshirish
+    data = response.json()
     if "error" in data:
         raise Exception(f"API xato: {data['error'].get('message', data['error'])}")
-    if "choices" not in data or len(data["choices"]) == 0:
-        raise Exception("Bo'sh javob keldi.")
-        
+    
     return data["choices"][0]["message"]["content"]
 
 # /start komandasi
