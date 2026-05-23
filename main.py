@@ -5,6 +5,7 @@ import telebot
 from flask import Flask
 import threading
 
+# API kalitlarini muhit o'zgaruvchilaridan (Environment variables) oladi
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
@@ -24,13 +25,13 @@ def openrouter_so_rov(messages):
             "HTTP-Referer": "https://t.me",
         },
         json={
-            "model": "google/gemini-2.0-flash:free",
+            # Xatolik shu yerda edi, model nomi yangilandi:
+            "model": "google/gemini-flash-1.5-free",
             "messages": messages
         }
     )
     data = response.json()
     
-    # Xato bo'lsa aniq ko'rsatish
     if "error" in data:
         raise Exception(f"API xato: {data['error'].get('message', data['error'])}")
     
@@ -39,7 +40,7 @@ def openrouter_so_rov(messages):
     
     return data["choices"][0]["message"]["content"]
 
-# /start
+# /start komandasi
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message,
@@ -48,7 +49,7 @@ def send_welcome(message):
         "🖼 Rasm yuboring — tahlil qilaman"
     )
 
-# Matn xabarlar
+# Matn xabarlar uchun
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     try:
@@ -60,7 +61,7 @@ def handle_message(message):
     except Exception as e:
         bot.reply_to(message, f"❌ {str(e)}")
 
-# Rasm xabarlar
+# Rasm xabarlar uchun
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
     try:
@@ -69,6 +70,7 @@ def handle_photo(message):
         file_id = message.photo[-1].file_id
         file_info = bot.get_file(file_id)
         file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
+        
         rasm_bytes = requests.get(file_url).content
         rasm_base64 = base64.b64encode(rasm_bytes).decode("utf-8")
 
@@ -94,5 +96,7 @@ def run_flask():
     app.run(host='0.0.0.0', port=int(os.getenv("PORT", 10000)))
 
 if __name__ == "__main__":
+    # Flask serverini orqa fonda ishga tushirish
     threading.Thread(target=run_flask).start()
+    # Botni ishga tushirish
     bot.infinity_polling()
