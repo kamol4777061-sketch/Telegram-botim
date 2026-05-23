@@ -28,7 +28,7 @@ def openrouter_so_rov(messages):
             # Xatolik shu yerda edi, model nomi yangilandi:
         
             # Bu ID hozirda eng ko'p ishlatiladigan va bepul modellardan biri:
-           "model": "google/gemini-flash-1.5-exp",
+          "model": "meta-llama/llama-3-8b-instruct",
             "messages": messages
     
         }
